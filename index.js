@@ -3,7 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.token;
 const client = new TelegramBot(token, { polling: true });
 require('dotenv').config();
-
+const server = require('./server.js');
 module.exports = client;
 //import files
 require("./src/eval.js");
