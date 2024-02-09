@@ -82,10 +82,11 @@ client.on('message', (msg) => {
 
 
 /***************server*********/
-const http = require('http');
+/*const http = require('http');
 let server = http.createServer(function (req, res) {
     res.end('ok')
 });
 server.listen(5000);
 console.log('Node.js web server at port 5000 is running..')
                        
+*/
