@@ -8,7 +8,7 @@ module.exports = client;
 //import files
 //require("./src/eval.js");
 //require("./src/speech.js");
-require("./src/currency.js");
+//require("./src/currency.js");
 require("./src/meme.js");
 // require("./src/lyrics.js");
 //require("./src/urban.js");
@@ -16,12 +16,12 @@ require('./src/country.js')
 require("./src/stats.js");
 require("./src/help.js");
 require("./src/moderation.js");
-require("./src/misc.js");
+//require("./src/misc.js");
 require("./src/music.js");
 // require("./src/musictest.js");
 require("./src/kick.js");
 require("./src/lockdown.js");
-require("./src/trivia.js");
+//require("./src/trivia.js");
 require("./src/admincmd.js");
 // require("./src/images.js");
 require("./src/weather.js");
