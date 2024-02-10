@@ -9,10 +9,10 @@ module.exports = client;
 //require("./src/eval.js");
 //require("./src/speech.js");
 //require("./src/currency.js");
-require("./src/meme.js");
+//require("./src/meme.js");
 // require("./src/lyrics.js");
 //require("./src/urban.js");
-require('./src/country.js')
+//require('./src/country.js')
 require("./src/stats.js");
 require("./src/help.js");
 require("./src/moderation.js");
