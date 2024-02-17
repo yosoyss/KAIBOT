@@ -16,7 +16,7 @@ module.exports = client;
 require("./src/stats.js");
 require("./src/help.js");
 require("./src/moderation.js");
-//require("./src/misc.js");
+require("./src/misc.js");
 require("./src/music.js");
 // require("./src/musictest.js");
 require("./src/kick.js");
