@@ -2,7 +2,7 @@ const client = require('../index.js');
 
 /*************my try ban*************/
 client.on("message", async (msg) => {
-      if(msg.text.startsWith("@kaiweb_bot")){
+      if(msg && msg.text && typeof msg text === "string" && msg.text.startsWith("@kaiweb_bot")){
         client.sendMessage(msg.chat.id, "Write /help to see my command list!");
       }
 });
