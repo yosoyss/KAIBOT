@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import client from '../index.js';
 
 /**************main code************/
+export default (client) => {
 client.onText(/\/currency/, async (message, match) => {
 
     let id = message.chat.id;
@@ -35,3 +36,4 @@ client.onText(/\/currency/, async (message, match) => {
 });
 
 export default (client);
+}
