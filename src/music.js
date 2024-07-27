@@ -8,68 +8,122 @@ import ytubes from 'ytubes';
 // Handle the /song command
 export default (client) => {
 client.onText(/\/song (.+)/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    const url = match[1];
-    
-    let urllink, songName, thumbs, dur, artist, seconds;
 
+    //
     try {
-        client.sendChatAction(chatId, 'upload_voice');
+        //main code
+        let id = msg.chat.id;
+        let url = match[1];
+        //search song by name
+        let urllink, songName, thumbs, dur, artist, seconds;
+        //check if arg is url
 
-        if (url.includes('https')) {
-            // Get song details from YouTube URL
-            const info = await ytdl.getInfo(url);
-            songName = info.videoDetails.title;
-            thumbs = info.videoDetails.thumbnails[0].url;
-            dur = info.videoDetails.lengthSeconds;
+        if (url.includes("https")) {
             urllink = url;
-        } else {
-            // Search for song by name
-            const videos = await ytubes.getMusic(url, { max: 1, language: 'eng-US' });
-            const video = videos[0];
 
-            songName = `${video.title} - [${video.artist}] - ${video.album}`;
-            artist = video.artist;
-            thumbs = video.thumbnail;
-            dur = video.duration;
-            urllink = video.videoLink;
+            //get song name by link
+            await ytdl.getInfo(urllink).then(info => {
+                songName = info.videoDetails.title;
+                thumbs = info.videoDetails.embed.iframeUrl; //.thumbnails[0].url;
+                dur = info.videoDetails.lengthSeconds;
+                let des = info.videoDetails;
+         //        console.log(des);
+            })
+            //
         }
+        else {
+            //get song by song name
+            const videos = await ytubes.getMusic(url, { max: 1, language: 'eng-US' })
+          //  console.log(videos)
+            //get song title of the song 
+            songName = videos[0].title + " - [" + videos[0].artist + "] - " + videos[0].album;
+            
+           //artist
+            artist = videos[0].artist;
+          
+            //get thumbnail
+            thumbs = videos[0].thumbnail;
+            //get duraction
+            dur = videos[0].duration;
 
+            //get url of song
+            urllink = videos[0].videoLink;
+
+        }
+        //check if song link is valid
         if (ytdl.validateURL(urllink)) {
-            // Create and save audio file
-            const audioFilePath = `./music/${songName}.mp3`;
-            const fileStream = fs.createWriteStream(audioFilePath);
 
+            //create a file
+            let aac_file = ytdl.getURLVideoID(urllink) + ".mp3";
+
+            //set client chat action
+            client.sendChatAction(id, "upload_voice");
+
+            // send loading msg
+            // client.sendMessage(id, `Dowloading... ${songName}`)      	
+            /*let x = await ytdl.getBasicInfo(urllink, 5);
+              
+            console.log(x)*/
+
+            //get song from yt
             ytdl(urllink, {
-                quality: 'highestaudio',
-                filter: 'audioonly'
-            }).pipe(fileStream);
+                quality: "highestaudio",
+                filter: "audioonly"
+                /*read file*/
+}).pipe(fs.createWriteStream(`./music/${songName}.mp3`).on('finish', () => {
 
-            fileStream.on('finish', async () => {
-                // Convert duration to seconds
-                const timeParts = dur.split(':').map(part => parseInt(part, 10));
-                seconds = timeParts.reduce((acc, part, index) => acc + part * Math.pow(60, timeParts.length - 1 - index), 0);
+                    //set client voice chat action
+                    client.sendChatAction(id, "upload_voice");
+                    //get file location
+                    let file = fs.createReadStream(`./music/${songName}.mp3`);
 
-                const audioOptions = {
-                    thumbnail: thumbs,
-                    duration: seconds,
-                    performer: artist
-                };
+                    // send audio file
 
-                try {
-                    await client.sendAudio(chatId, fs.createReadStream(audioFilePath), audioOptions);
-                    fs.unlinkSync(audioFilePath); // Clean up file after sending
-                } catch (err) {
-                    console.error('Error sending audio:', err);
-                    await client.sendMessage(chatId, 'Failed to send the audio. Please try again.');
-                }
-            });
-        } else {
-            await client.sendMessage(chatId, 'Invalid song URL or search query. Please try again.');
+                    /**********function to split duration*************/
+                          let time = dur;
+
+  //                        console.log(time)
+                          // if(time.length)
+                          let time_split = time.split(":")
+
+                          if(time_split.length >= 3){
+                             seconds = (time_split[0] * 3600) + (time_split[1] * 60 ) + parseInt(time_split[2]);
+                          }
+                          else if(time_split.length >= 2){
+                             seconds = (time_split[0] * 60 ) + parseInt(time_split[1]);
+                          }
+                          else{
+                             seconds = parseInt(time_split[0]);
+                          }
+
+                          // console.log(seconds)
+
+                        
+                         /** ****************obj of sendAudio function******************* */
+                          let audio = {
+                            thumbnail: thumbs,
+                            duration : seconds,
+                            performer : artist
+                          }
+
+                    /** ****************send audio file******************* */
+// client.sendPhoto(id, thumbs);
+              client.sendAudio(id, file, audio).then(() => {
+
+                        //delete file from local server 
+                        fs.unlinkSync(`./music/${songName}.mp3`);
+                    }).catch(err => { });
+                }));
         }
+        else {
+            client.sendMessage(id, "Song Not found!");
+        } //else
+
+        //try } end below
     } catch (err) {
-        console.error('Error processing song command:', err);
-        await client.sendMessage(chatId, 'An error occurred while processing your request. Please try again later.');
+        client.sendMessage(msg.chat.id, "Something went wrong try another link!");
     }
 });
+
+
 }
