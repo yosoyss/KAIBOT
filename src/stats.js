@@ -5,6 +5,7 @@ import pkg from 'node-os-utils';
 const { mem, cpu, os } = pkg;
 
 /************main code start*************/
+export default (client) => {
 client.onText(/^[\/!#]stats$/, async msg => {
     try {
         client.sendChatAction(msg.chat.id, 'typing');
@@ -32,3 +33,4 @@ OS Uptime: ${ms(os.uptime())}`,
         client.sendMessage(msg.chat.id, "Something went wrong while fetching the stats. Please try again later.");
     }
 });
+}
