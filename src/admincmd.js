@@ -1,7 +1,7 @@
 const client = require('../index.js');
 
 /**************pin msg**************/
-client.onText(/^[\/!#]pin$/, async msg => {
+client.onText(/\/pin/, async msg => {
     //check member perms
     const bot = await client.getMe(); client.getChatAdministrators(msg.chat.id).then(admins => admins.some(child => child.user.id == msg.from.id)).then(isAdmin => {
         if (isAdmin) {
@@ -59,7 +59,7 @@ client.onText(/\/chatTitle/, async (msg, match) => {
 
 });
 /*********leave groyp**************/
-client.onText(/^[\/!#]leave$/, msg => {
+client.onText(/\/leave/, msg => {
     let chatId = msg.chat.id;
     client.getChatAdministrators(msg.chat.id).then(admins => admins.some(child => child.user.id == msg.from.id)).then(isAdmin => {
         if (isAdmin) {
