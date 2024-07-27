@@ -1,6 +1,7 @@
 import client from '../index.js';
 
 /*************mute*************/
+export default (client) => {
 client.onText(/\/mute/, async (msg) => {
     const chatId = msg.chat.id;
     const userId = msg.reply_to_message.from.id;
@@ -90,3 +91,4 @@ client.onText(/^[\/!#]unmute$/, async (msg) => {
         await client.sendMessage(chatId, "This command doesn't work in private chats.");
     }
 });
+}
