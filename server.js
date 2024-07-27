@@ -1,6 +1,11 @@
-var http = require('http');
+const express = require("express");
+const app = express();
 
-http.createServer(function (req, res) {
-  res.write('i am ok');
-  res.end();
-}).listen(5000);
+app.get("/", (req, res) => {
+    res.send("Bot is alive");
+});
+
+const port = 3000;
+app.listen(port, () => {
+    console.log(`Server running at ${port}`);
+});
