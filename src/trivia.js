@@ -2,6 +2,7 @@ import client from '../index.js';
 import fetch from 'node-fetch';
 
 /**************trivia quiz***********/
+export default (client) => {
 client.onText(/^[\/!#]trivia$/, async msg => {
     try {
         const dataFetch = await fetch('https://opentdb.com/api.php?amount=1&type=multiple');
@@ -51,3 +52,4 @@ client.onText(/^[\/!#]trivia$/, async msg => {
         await client.sendMessage(msg.chat.id, 'Something went wrong while fetching trivia. Please try again later.');
     }
 });
+}
