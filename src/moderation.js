@@ -1,138 +1,92 @@
-const client = require('../index.js');
+import client from '../index.js';
 
 /*************mute*************/
 client.onText(/\/mute/, async (msg) => {
-    let perms = {
+    const chatId = msg.chat.id;
+    const userId = msg.reply_to_message.from.id;
+    const perms = {
         can_send_messages: false,
         can_send_polls: false,
         can_change_info: false
     };
-    let bot = await client.getMe();
-    let mem = await client.getChatMember(msg.chat.id, msg.reply_to_message.from.id);
-    //load action
-    client.sendChatAction(msg.chat.id, "typing");
+    const bot = await client.getMe();
+    
+    client.sendChatAction(chatId, "typing");
 
-    //check group
-    if (msg.chat.type === "channel" ||
-        msg.chat.type === "supergroup" ||
-        msg.chat.type === "group") {
-
-        //check member perms
-        client.getChatAdministrators(msg.chat.id).then(admins => admins.some(child => child.user.id == msg.from.id)).then(isAdmin => {
+    if (['channel', 'supergroup', 'group'].includes(msg.chat.type)) {
+        try {
+            const isAdmin = (await client.getChatAdministrators(chatId)).some(admin => admin.user.id === msg.from.id);
+            const botIsAdmin = (await client.getChatAdministrators(chatId)).some(admin => admin.user.id === bot.id);
+            
             if (isAdmin) {
-                //check bot perms
-                client.getChatAdministrators(msg.chat.id).then(admins => admins.some(child => child.user.id == bot.id)).then(bisAdmin => {
-                    if (bisAdmin) {
-                        // check if bot got mentioned lol
-                        if (msg.reply_to_message.from.id != bot.id) {
-                            //check if command owner user cmd
-                            if (msg.reply_to_message.from.id != msg.from.id) {
-                                //then kick the member  
-                                client.restrictChatMember(msg.chat.id, msg.reply_to_message.from.id, perms)
-                                    .then(() => client.sendMessage(msg.chat.id, msg.reply_to_message.from.first_name + " has been Restricted")
-                                    ).catch(e => {
-                                        if (e.response.body.error_code == 400) {
-                                            client.sendMessage(msg.chat.id, "I can't mute admin.");
-                                        }
-                                        // client.deleteMessage(chatId, messageId);
-                                    });
-                                //you cant kick yourself.
-                            } else {
-                                client.sendMessage(msg.chat.id, "You cant Mute yourself!")
-                            }
-                            //you cant ban me
+                if (botIsAdmin) {
+                    if (userId !== bot.id) {
+                        if (userId !== msg.from.id) {
+                            await client.restrictChatMember(chatId, userId, perms);
+                            await client.sendMessage(chatId, `${msg.reply_to_message.from.first_name} has been muted.`);
                         } else {
-                            client.sendMessage(msg.chat.id, "Why you wanna restricte me. ;-;");
+                            await client.sendMessage(chatId, "You cannot mute yourself!");
                         }
-
-                        //bot has no perms
                     } else {
-                        client.sendMessage(msg.chat.id, "I need administrator privileges to run this command!");
+                        await client.sendMessage(chatId, "You cannot mute the bot!");
                     }
-                });
-                //if user is not admin
+                } else {
+                    await client.sendMessage(chatId, "The bot needs administrator privileges to perform this action!");
+                }
             } else {
-                client.sendMessage(msg.chat.id, "You need administrator privileges to run this command!");
+                await client.sendMessage(chatId, "You need administrator privileges to run this command!");
             }
-        });
-        //return if mem not found
-        /*  } else {
-            client.sendMessage(msg.chat.id, mem.id + " " + mem.first_name)
-            client.sendMessage(msg.chat.id, "Member not found!")
-          }*/
-
-        //return if isnt a group
+        } catch (error) {
+            console.error('Error during mute operation:', error);
+            await client.sendMessage(chatId, "Failed to mute user. Please try again.");
+        }
     } else {
-        client.sendMessage(msg.chat.id, "This Command doesn't work in private.");
+        await client.sendMessage(chatId, "This command doesn't work in private chats.");
     }
-
 });
 
 /***************unmute***************/
 client.onText(/^[\/!#]unmute$/, async (msg) => {
-    let perms = {
+    const chatId = msg.chat.id;
+    const userId = msg.reply_to_message.from.id;
+    const perms = {
         can_send_messages: true,
         can_send_polls: true,
         can_send_media_messages: true,
         can_change_info: true
     };
-    let bot = await client.getMe();
-    let mem = await client.getChatMember(msg.chat.id, msg.reply_to_message.from.id);
-    //load action
-    client.sendChatAction(msg.chat.id, "typing");
+    const bot = await client.getMe();
 
-    //check group
-    if (msg.chat.type === "channel" ||
-        msg.chat.type === "supergroup" ||
-        msg.chat.type === "group") {
+    client.sendChatAction(chatId, "typing");
 
-        //check member perms
-        client.getChatAdministrators(msg.chat.id).then(admins => admins.some(child => child.user.id == msg.from.id)).then(isAdmin => {
+    if (['channel', 'supergroup', 'group'].includes(msg.chat.type)) {
+        try {
+            const isAdmin = (await client.getChatAdministrators(chatId)).some(admin => admin.user.id === msg.from.id);
+            const botIsAdmin = (await client.getChatAdministrators(chatId)).some(admin => admin.user.id === bot.id);
+            
             if (isAdmin) {
-                //check bot perms
-                client.getChatAdministrators(msg.chat.id).then(admins => admins.some(child => child.user.id == bot.id)).then(bisAdmin => {
-                    if (bisAdmin) {
-                        // check if bot got mentioned lol
-                        if (msg.reply_to_message.from.id != bot.id) {
-                            //check if command owner user cmd
-                            if (msg.reply_to_message.from.id != msg.from.id) {
-                                //then kick the member  
-                                client.restrictChatMember(msg.chat.id, msg.reply_to_message.from.id, perms)
-                                    .then(() => client.sendMessage(msg.chat.id, msg.reply_to_message.from.first_name + " has been UnRestricted")
-                                    ).catch(e => {
-                                        if (e.response.body.error_code == 400) {
-                                            client.sendMessage(msg.chat.id, "I can't unmute admin.");
-                                        }
-                                        // client.deleteMessage(chatId, messageId);
-                                    });
-                                //you cant kick yourself.
-                            } else {
-                                client.sendMessage(msg.chat.id, "You cant unmute yourself!")
-                            }
-                            //you cant ban me
+                if (botIsAdmin) {
+                    if (userId !== bot.id) {
+                        if (userId !== msg.from.id) {
+                            await client.restrictChatMember(chatId, userId, perms);
+                            await client.sendMessage(chatId, `${msg.reply_to_message.from.first_name} has been unmuted.`);
                         } else {
-                            client.sendMessage(msg.chat.id, "you wanna restricte me. ;-;");
+                            await client.sendMessage(chatId, "You cannot unmute yourself!");
                         }
-
-                        //bot has no perms
                     } else {
-                        client.sendMessage(msg.chat.id, "I need administrator privileges to run this command!");
+                        await client.sendMessage(chatId, "You cannot unmute the bot!");
                     }
-                });
-                //if user is not admin
+                } else {
+                    await client.sendMessage(chatId, "The bot needs administrator privileges to perform this action!");
+                }
             } else {
-                client.sendMessage(msg.chat.id, "You need administrator privileges to run this command!");
+                await client.sendMessage(chatId, "You need administrator privileges to run this command!");
             }
-        });
-        //return if mem not found
-        /*  } else {
-            client.sendMessage(msg.chat.id, mem.id + " " + mem.first_name)
-            client.sendMessage(msg.chat.id, "Member not found!")
-          }*/
-
-        //return if isnt a group
+        } catch (error) {
+            console.error('Error during unmute operation:', error);
+            await client.sendMessage(chatId, "Failed to unmute user. Please try again.");
+        }
     } else {
-        client.sendMessage(msg.chat.id, "This Command doesn't work in private.");
+        await client.sendMessage(chatId, "This command doesn't work in private chats.");
     }
-
-});  
+});
