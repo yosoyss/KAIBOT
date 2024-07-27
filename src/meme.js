@@ -1,50 +1,48 @@
-const client = require('../index.js');
-const fetch = require('node-fetch');
+import client from '../index.js';
+import fetch from 'node-fetch';
 
 client.onText(/^[\/!#]meme$/, async (message) => {
-
-    let id = message.chat.id;
+    const id = message.chat.id;
 
     client.sendChatAction(id, "upload_photo");
 
-    //check if args is not null
-
-    //search arg
-
-    let random = [
+    // List of subreddit names for memes
+    const subreddits = [
         'desimemes',
         'funnymemes',
         'weirdmemes',
         'IndianMeyMeys',
         'HindiMemes',
-        'meme',
         'memesdaily',
         'lmao',
         'relatable'
     ];
 
-    //get rand value
-    let rand = random[Math.floor(Math.random() * random.length)];
+    // Pick a random subreddit
+    const randomSubreddit = subreddits[Math.floor(Math.random() * subreddits.length)];
 
-    //fetch link
-    const res = await fetch(`https://www.reddit.com/r/${rand}/random/.json`);
-    // console.log(res);
-    //get data by json
-    const json = await res.json();
-    console.log(json)
-    //if there is an err
-    if (!json[0]) {
-        return client.sendMessage(id, `something went wrong! please try again!!`);
-    }
-
-    const data = json[0].data.children[0].data;
+    // Fetch a random meme from the chosen subreddit
     try {
+        const response = await fetch(`https://www.reddit.com/r/${randomSubreddit}/random/.json`);
+        const json = await response.json();
 
-        client.sendPhoto(id,
-            `${data.url}`, { caption: `[${data.title}](https://reddit.com${data.permalink})`, parse_mode: "Markdown" }).catch(err => { });
+        if (!json[0] || !json[0].data || !json[0].data.children || !json[0].data.children[0] || !json[0].data.children[0].data) {
+            throw new Error('No data found');
+        }
 
-    } catch {
-        return client.sendMessage(id, `Result not found!`);
+        const data = json[0].data.children[0].data;
+
+        // Check if the post contains an image URL
+        if (data.url && data.url.match(/\.(jpeg|jpg|gif|png)$/)) {
+            client.sendPhoto(id, data.url, { 
+                caption: `[${data.title}](https://reddit.com${data.permalink})`, 
+                parse_mode: "Markdown" 
+            });
+        } else {
+            throw new Error('No image found in the post');
+        }
+    } catch (error) {
+        console.error(error);
+        client.sendMessage(id, "Something went wrong while fetching the meme. Please try again later.");
     }
-    //end
 });
