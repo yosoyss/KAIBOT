@@ -1,6 +1,7 @@
 import client from '../index.js';
 
 /*************my try ban*************/
+export default (client) => {
 client.onText(/^[\/!#]kick$/, async (msg) => {
 
     let bot = await client.getMe();
@@ -51,3 +52,4 @@ client.onText(/^[\/!#]kick$/, async (msg) => {
         client.sendMessage(msg.chat.id, "This command only works in group chats.");
     }
 });
+}
