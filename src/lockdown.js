@@ -1,6 +1,7 @@
 import client from '../index.js';
 
 /**********lockdown**********/
+export default (client) => {
 client.onText(/^[\/!#]lockdown$/, async (msg) => {
     const perms = {
         can_send_messages: false,
@@ -79,3 +80,4 @@ client.onText(/^[\/!#]unlock$/, async (msg) => {
         client.sendMessage(msg.chat.id, "This command doesn't work in private chats.");
     }
 });
+}
