@@ -1,7 +1,7 @@
-process.env["NTBA_FIX_319"] = 1;
+//process.env["NTBA_FIX_319"] = 1;
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
-const token = process.env.TOKEN;
+const token = process.env.token;
 const client = new TelegramBot(token, { polling: true });
 
 const fs = require('fs');
