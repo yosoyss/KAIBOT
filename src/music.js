@@ -6,6 +6,7 @@ import client from '../index.js';
 import ytubes from 'ytubes';
 
 // Handle the /song command
+export default (client) => {
 client.onText(/\/song (.+)/, async (msg, match) => {
     const chatId = msg.chat.id;
     const url = match[1];
@@ -71,3 +72,4 @@ client.onText(/\/song (.+)/, async (msg, match) => {
         await client.sendMessage(chatId, 'An error occurred while processing your request. Please try again later.');
     }
 });
+}
