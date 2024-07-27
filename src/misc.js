@@ -2,6 +2,7 @@ import client from '../index.js';
 import fetch from 'node-fetch'; // Import if needed for other commands, remove if not used
 
 /***********link******************/
+export default (client) => {
 client.onText(/^[\/!#]link$/, async (msg) => {
     const chatId = msg.chat.id;
     
@@ -62,3 +63,4 @@ client.onText(/\/say (.+)/, async (msg, match) => {
         await client.sendMessage(chatId, response);
     }
 });
+}
