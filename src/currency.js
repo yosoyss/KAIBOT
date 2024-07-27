@@ -1,5 +1,5 @@
-const client = require('../index.js');
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
+import client from '../index.js';
 
 /**************main code************/
 client.onText(/\/currency/, async (message, match) => {
@@ -10,28 +10,28 @@ client.onText(/\/currency/, async (message, match) => {
 
     //check if args is not null
     if (match.input === "/currency") {
-        client.sendMessage(id, "You haven't provide any argument.");
-
+        client.sendMessage(id, "You haven't provided any argument.");
     } else {
         let date = new Date().toLocaleDateString();
-        let from = match.input.split(' ')[1];
-        let to = match.input.split(' ')[3];
-        let amount = match.input.split(' ')[4];
+        let [ , from, , to, amount ] = match.input.split(' ');
 
         let url = `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${parseInt(amount)}`;
 
-        let a = await fetch(url).then(res => res.json());
-        //define word function  
         try {
+            let a = await fetch(url).then(res => res.json());
             console.log(a.result);
             client.sendMessage(id,
                 `• **From:** ${from.toUpperCase()}
 • **To:** ${to.toUpperCase()}
 • **Amount:** ${amount}
-• **Result:** ${a.result}`, { parse_mode: "Markdown" }); //or do something else
+• **Result:** ${a.result}`, 
+                { parse_mode: "Markdown" }
+            );
         } catch (err) {
-            console.log(err)
+            console.log(err);
             client.sendMessage(id, `Result not found.`).catch(err => { });
         }
     }
 });
+
+export default (client);
