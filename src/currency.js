@@ -35,5 +35,4 @@ client.onText(/\/currency/, async (message, match) => {
     }
 });
 
-export default (client);
 }
