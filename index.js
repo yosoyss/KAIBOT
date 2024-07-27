@@ -20,7 +20,10 @@ app.listen(port, () => {
     console.log(`Server running at ${port}`);
 });
 
-// Require all command files in the 'src' directory
+// Define the path to the commands directory
+const commandsPath = path.join(__dirname, 'src');
+
+// Load and initialize all .js files in the 'src' directory
 fs.readdirSync(commandsPath)
     .filter(file => file.endsWith('.js')) // Filter .js files
     .forEach(file => {
