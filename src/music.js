@@ -51,12 +51,12 @@ export default (client) => {
 
         try {
           const stream = ytdl(urllink, { quality: "highestaudio", filter: "audioonly" });
-          const fileStream = fs.createWriteStream(`./music/${songName}.mp3`);
+          const fileStream = fs.createWriteStream(`../music/${songName}.mp3`);
 
           stream.pipe(fileStream);
 
           fileStream.on('finish', async () => {
-            let file = fs.createReadStream(`./music/${songName}.mp3`);
+            let file = fs.createReadStream(`../music/${songName}.mp3`);
             
             let time_split = dur.split(":");
             if (time_split.length >= 3) {
@@ -75,7 +75,7 @@ export default (client) => {
 
             try {
               await client.sendAudio(id, file, audio);
-              fs.unlinkSync(`./music/${songName}.mp3`);
+              fs.unlinkSync(`../music/${songName}.mp3`);
             } catch (error) {
               console.error('Error sending audio file:', error);
               client.sendMessage(id, "Error sending audio file.");
