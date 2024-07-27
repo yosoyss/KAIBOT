@@ -2,6 +2,7 @@ import client from '../index.js';
 import weather from 'weather-js';
 
 /**********weather********/
+export default (client) => {
 client.onText(/\/weather (.+)/, async (msg, match) => {
     try {
         const searchQuery = match[1];
@@ -43,3 +44,4 @@ client.onText(/\/weather (.+)/, async (msg, match) => {
         await client.sendMessage(msg.chat.id, "Something went wrong while processing your request. Please try again.");
     }
 });
+}
