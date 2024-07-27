@@ -1,6 +1,7 @@
 import client from '../index.js';
 import fetch from 'node-fetch';
 
+export default (client) => {
 client.onText(/^[\/!#]meme$/, async (message) => {
     const id = message.chat.id;
 
@@ -46,3 +47,4 @@ client.onText(/^[\/!#]meme$/, async (message) => {
         client.sendMessage(id, "Something went wrong while fetching the meme. Please try again later.");
     }
 });
+}
