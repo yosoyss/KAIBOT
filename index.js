@@ -23,14 +23,23 @@ app.listen(port, () => {
 });
 
 // Define the path to the commands directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Define the path to the commands directory
 const commandsPath = path.join(__dirname, 'src');
 
 // Load and initialize all .js files in the 'src' directory
 fs.readdirSync(commandsPath)
     .filter(file => file.endsWith('.js')) // Filter .js files
-    .forEach(file => {
+    .forEach(async (file) => {
         const commandPath = path.join(commandsPath, file);
-        require(commandPath)(client); // Initialize the command
+        try {
+            const module = await import(commandPath);
+            module.default(client); // Initialize the command
+        } catch (error) {
+            console.error(`Failed to load ${file}: ${error}`);
+        }
     });
 
 // Hi command
