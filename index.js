@@ -22,9 +22,10 @@ app.listen(port, () => {
 
 // Require all command files in the 'src' directory
 fs.readdirSync(commandsPath)
-    .filter(file => file.endsWith('.js')) // Filter for .js files only
+    .filter(file => file.endsWith('.js')) // Filter .js files
     .forEach(file => {
-        require(path.join(commandsPath, file))(client);
+        const commandPath = path.join(commandsPath, file);
+        require(commandPath)(client); // Initialize the command
     });
 
 // Hi command
