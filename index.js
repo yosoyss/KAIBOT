@@ -1,4 +1,4 @@
-//process.env["NTBA_FIX_319"] = 1;
+process.env["NTBA_FIX_319"] = 1;
 import fs from 'fs';
 import path from 'path';
 import TelegramBot from 'node-telegram-bot-api';
