@@ -1,11 +1,9 @@
 import fs from 'fs';
-import express from 'express';
+import path from 'path';
 import ytdl from 'ytdl-core';
-import ms from 'ms';
 import client from '../index.js';
 import ytubes from 'ytubes';
 
-// Handle the /song command
 export default (client) => {
   client.onText(/\/song (.+)/, async (msg, match) => {
     try {
@@ -13,11 +11,9 @@ export default (client) => {
       let url = match[1];
       let urllink, songName, thumbs, dur, artist, seconds;
 
-      // Check if URL is valid
       if (url.includes("https")) {
         urllink = url;
 
-        // Get song info by link
         try {
           const info = await ytdl.getInfo(urllink);
           songName = info.videoDetails.title;
@@ -29,7 +25,6 @@ export default (client) => {
           return;
         }
       } else {
-        // Get song by name
         try {
           const videos = await ytubes.getMusic(url, { max: 1, language: 'eng-US' });
           songName = `${videos[0].title} - [${videos[0].artist}] - ${videos[0].album}`;
@@ -45,18 +40,24 @@ export default (client) => {
       }
 
       if (ytdl.validateURL(urllink)) {
-        let aac_file = `${ytdl.getURLVideoID(urllink)}.mp3`;
+        // Path to the music directory, which is one level up from the 'src' directory
+        const musicDir = path.join(__dirname, '..', 'music');
+        if (!fs.existsSync(musicDir)) {
+          fs.mkdirSync(musicDir, { recursive: true });
+        }
+
+        const filePath = path.join(musicDir, `${songName}.mp3`);
 
         client.sendChatAction(id, "upload_voice");
 
         try {
           const stream = ytdl(urllink, { quality: "highestaudio", filter: "audioonly" });
-          const fileStream = fs.createWriteStream(`../music/${songName}.mp3`);
+          const fileStream = fs.createWriteStream(filePath);
 
           stream.pipe(fileStream);
 
           fileStream.on('finish', async () => {
-            let file = fs.createReadStream(`../music/${songName}.mp3`);
+            let file = fs.createReadStream(filePath);
             
             let time_split = dur.split(":");
             if (time_split.length >= 3) {
@@ -75,7 +76,7 @@ export default (client) => {
 
             try {
               await client.sendAudio(id, file, audio);
-              fs.unlinkSync(`../music/${songName}.mp3`);
+              fs.unlinkSync(filePath);
             } catch (error) {
               console.error('Error sending audio file:', error);
               client.sendMessage(id, "Error sending audio file.");
