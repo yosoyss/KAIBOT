@@ -26,7 +26,7 @@ require("./src/admincmd.js");
 // require("./src/images.js");
 require("./src/weather.js");
 /*************hi cmd**********/
-client.onText(/\/hi/, msg => {
+client.on("/hi", async (msg) => {
     let para = `🌟 Hey there, ${msg.from.first_name}! I'm Kai, your go-to buddy on Telegram. More than just a bot, I'm here to add a dash of excitement to your chats. 🤖✨
 
 Let's kick things off with some brainy fun—I've got trivia quizzes and tic-tac-toe games ready to roll. Feeling artsy? Dive into a collection of cool random images that'll catch your eye. 🧠🎨
@@ -41,7 +41,7 @@ Celebrating a whole year of being your virtual sidekick, I'm pumped to keep the 
   
     client.sendChatAction(msg.chat.id, "typing");
 
-    client.sendMessage(msg.chat.id, para , { reply_to_message_id: msg.message_id })
+    await client.sendMessage(msg.chat.id, para , { reply_to_message_id: msg.message_id })
 })
 
 /**************profanity***************/
