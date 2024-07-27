@@ -3,6 +3,7 @@ import ms from 'ms';
 import { mem, cpu, os } from 'node-os-utils';
 
 // Handle the /stats command
+export default (client) => {
 client.onText(/^[\/!#]stats$/, async msg => {
     try {
         client.sendChatAction(msg.chat.id, 'typing');
@@ -32,3 +33,4 @@ client.onText(/^[\/!#]stats$/, async msg => {
         await client.sendMessage(msg.chat.id, 'An error occurred while fetching the stats. Please try again later.');
     }
 });
+}
