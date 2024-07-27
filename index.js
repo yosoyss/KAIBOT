@@ -68,3 +68,6 @@ client.on('message', (msg) => {
         console.log("new_chat_members is not defined");
     }
 });
+
+
+export default client;
