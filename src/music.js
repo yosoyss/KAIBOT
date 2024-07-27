@@ -7,123 +7,97 @@ import ytubes from 'ytubes';
 
 // Handle the /song command
 export default (client) => {
-client.onText(/\/song (.+)/, async (msg, match) => {
-
-    //
+  client.onText(/\/song (.+)/, async (msg, match) => {
     try {
-        //main code
-        let id = msg.chat.id;
-        let url = match[1];
-        //search song by name
-        let urllink, songName, thumbs, dur, artist, seconds;
-        //check if arg is url
+      let id = msg.chat.id;
+      let url = match[1];
+      let urllink, songName, thumbs, dur, artist, seconds;
 
-        if (url.includes("https")) {
-            urllink = url;
+      // Check if URL is valid
+      if (url.includes("https")) {
+        urllink = url;
 
-            //get song name by link
-            await ytdl.getInfo(urllink).then(info => {
-                songName = info.videoDetails.title;
-                thumbs = info.videoDetails.embed.iframeUrl; //.thumbnails[0].url;
-                dur = info.videoDetails.lengthSeconds;
-                let des = info.videoDetails;
-         //        console.log(des);
-            })
-            //
+        // Get song info by link
+        try {
+          const info = await ytdl.getInfo(urllink);
+          songName = info.videoDetails.title;
+          thumbs = info.videoDetails.embed.iframeUrl;
+          dur = info.videoDetails.lengthSeconds;
+        } catch (error) {
+          console.error('Error getting video info:', error);
+          client.sendMessage(id, "Error fetching video details.");
+          return;
         }
-        else {
-            //get song by song name
-            const videos = await ytubes.getMusic(url, { max: 1, language: 'eng-US' })
-          //  console.log(videos)
-            //get song title of the song 
-            songName = videos[0].title + " - [" + videos[0].artist + "] - " + videos[0].album;
+      } else {
+        // Get song by name
+        try {
+          const videos = await ytubes.getMusic(url, { max: 1, language: 'eng-US' });
+          songName = `${videos[0].title} - [${videos[0].artist}] - ${videos[0].album}`;
+          artist = videos[0].artist;
+          thumbs = videos[0].thumbnail;
+          dur = videos[0].duration;
+          urllink = videos[0].videoLink;
+        } catch (error) {
+          console.error('Error fetching video details by name:', error);
+          client.sendMessage(id, "Error searching for video.");
+          return;
+        }
+      }
+
+      if (ytdl.validateURL(urllink)) {
+        let aac_file = `${ytdl.getURLVideoID(urllink)}.mp3`;
+
+        client.sendChatAction(id, "upload_voice");
+
+        try {
+          const stream = ytdl(urllink, { quality: "highestaudio", filter: "audioonly" });
+          const fileStream = fs.createWriteStream(`./music/${songName}.mp3`);
+
+          stream.pipe(fileStream);
+
+          fileStream.on('finish', async () => {
+            let file = fs.createReadStream(`./music/${songName}.mp3`);
             
-           //artist
-            artist = videos[0].artist;
-          
-            //get thumbnail
-            thumbs = videos[0].thumbnail;
-            //get duraction
-            dur = videos[0].duration;
+            let time_split = dur.split(":");
+            if (time_split.length >= 3) {
+              seconds = (parseInt(time_split[0]) * 3600) + (parseInt(time_split[1]) * 60) + parseInt(time_split[2]);
+            } else if (time_split.length >= 2) {
+              seconds = (parseInt(time_split[0]) * 60) + parseInt(time_split[1]);
+            } else {
+              seconds = parseInt(time_split[0]);
+            }
 
-            //get url of song
-            urllink = videos[0].videoLink;
+            let audio = {
+              thumbnail: thumbs,
+              duration: seconds,
+              performer: artist
+            };
 
+            try {
+              await client.sendAudio(id, file, audio);
+              fs.unlinkSync(`./music/${songName}.mp3`);
+            } catch (error) {
+              console.error('Error sending audio file:', error);
+              client.sendMessage(id, "Error sending audio file.");
+            }
+          });
+
+          fileStream.on('error', (error) => {
+            console.error('File system error:', error);
+            client.sendMessage(id, "Error writing file.");
+          });
+
+        } catch (error) {
+          console.error('Error downloading video:', error);
+          client.sendMessage(id, "Error downloading video.");
         }
-        //check if song link is valid
-        if (ytdl.validateURL(urllink)) {
+      } else {
+        client.sendMessage(id, "Song Not found!");
+      }
 
-            //create a file
-            let aac_file = ytdl.getURLVideoID(urllink) + ".mp3";
-
-            //set client chat action
-            client.sendChatAction(id, "upload_voice");
-
-            // send loading msg
-            // client.sendMessage(id, `Dowloading... ${songName}`)      	
-            /*let x = await ytdl.getBasicInfo(urllink, 5);
-              
-            console.log(x)*/
-
-            //get song from yt
-            ytdl(urllink, {
-                quality: "highestaudio",
-                filter: "audioonly"
-                /*read file*/
-}).pipe(fs.createWriteStream(`./music/${songName}.mp3`).on('finish', () => {
-
-                    //set client voice chat action
-                    client.sendChatAction(id, "upload_voice");
-                    //get file location
-                    let file = fs.createReadStream(`./music/${songName}.mp3`);
-
-                    // send audio file
-
-                    /**********function to split duration*************/
-                          let time = dur;
-
-  //                        console.log(time)
-                          // if(time.length)
-                          let time_split = time.split(":")
-
-                          if(time_split.length >= 3){
-                             seconds = (time_split[0] * 3600) + (time_split[1] * 60 ) + parseInt(time_split[2]);
-                          }
-                          else if(time_split.length >= 2){
-                             seconds = (time_split[0] * 60 ) + parseInt(time_split[1]);
-                          }
-                          else{
-                             seconds = parseInt(time_split[0]);
-                          }
-
-                          // console.log(seconds)
-
-                        
-                         /** ****************obj of sendAudio function******************* */
-                          let audio = {
-                            thumbnail: thumbs,
-                            duration : seconds,
-                            performer : artist
-                          }
-
-                    /** ****************send audio file******************* */
-// client.sendPhoto(id, thumbs);
-              client.sendAudio(id, file, audio).then(() => {
-
-                        //delete file from local server 
-                        fs.unlinkSync(`./music/${songName}.mp3`);
-                    }).catch(err => { });
-                }));
-        }
-        else {
-            client.sendMessage(id, "Song Not found!");
-        } //else
-
-        //try } end below
     } catch (err) {
-        client.sendMessage(msg.chat.id, "Something went wrong try another link!");
+      console.error('General error:', err);
+      client.sendMessage(msg.chat.id, "Something went wrong, try another link!");
     }
-});
-
-
+  });
 }
