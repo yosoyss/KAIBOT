@@ -1,6 +1,7 @@
 import client from '../index.js';
 
 /*************my try ban*************/
+export default (client) => {
 client.on("message", async (msg) => {
     if (msg && msg.text && typeof msg.text === "string" && msg.text.startsWith("@kaiweb_bot")) {
         client.sendMessage(msg.chat.id, "Write /help to see my command list!");
@@ -49,4 +50,4 @@ client.onText(/^[\/!#]help/, async (msg) => {
     client.sendMessage(msg.chat.id, data[0], { parse_mode: "Markdown" });
 });
 
-export default (client);
+}
