@@ -21,10 +21,11 @@ app.listen(port, () => {
 });
 
 // Require all command files in the 'src' directory
-const commandsPath = path.join(__dirname, 'src');
-fs.readdirSync(commandsPath).forEach(file => {
-    require(path.join(commandsPath, file))(client);
-});
+fs.readdirSync(commandsPath)
+    .filter(file => file.endsWith('.js')) // Filter for .js files only
+    .forEach(file => {
+        require(path.join(commandsPath, file))(client);
+    });
 
 // Hi command
 client.onText(/\/hi/, async (msg) => {
