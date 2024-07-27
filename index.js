@@ -10,7 +10,7 @@ const client = new TelegramBot(token, { polling: true });
 
 // const server = require('./server.js');
 
-import express from ("express";
+import express from "express";
 const app = express();
 
 app.get("/", (req, res) => {
