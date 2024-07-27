@@ -1,40 +1,53 @@
-const client = require('../index.js');
+import client from '../index.js';
+import fetch from 'node-fetch';
 
-const fetch = require('node-fetch');
-// /**************trivia quiz***********/
-
+/**************trivia quiz***********/
 client.onText(/^[\/!#]trivia$/, async msg => {
-    let trivia = '/trivia';
+    try {
+        const dataFetch = await fetch('https://opentdb.com/api.php?amount=1&type=multiple');
+        const json = await dataFetch.json();
+        const data = json.results[0];
 
-    const dataFetch = await fetch(`https://opentdb.com/api.php?amount=1&type=multiple`)
-    const json = await dataFetch.json();
-    const data = json.results[0];
+        // Decode HTML entities and format text
+        let question = data.question
+            .replace(/&quot;/g, '"')
+            .replace(/&eacute;/g, 'e')
+            .replace(/&#039;/g, "'");
 
-    //get answer and question by var
-    let question = data.question.replace(/&quot;/g, '"').replace(/&eacute;/g, 'e').replace(/&#039;/g, "'")
-    let incorrect = data.incorrect_answers[0]
-    let incorrectTwo = data.incorrect_answers[1]
-    let incorrectThree = data.incorrect_answers[2]
-    let correct = data.correct_answer.replace(/&quot;/g, '"').replace(/&eacute;/g, 'e').replace(/&#039;/g, "'")
+        let incorrect = data.incorrect_answers[0]
+            .replace(/&quot;/g, '"')
+            .replace(/&eacute;/g, 'e')
+            .replace(/&#039;/g, "'");
+        let incorrectTwo = data.incorrect_answers[1]
+            .replace(/&quot;/g, '"')
+            .replace(/&eacute;/g, 'e')
+            .replace(/&#039;/g, "'");
+        let incorrectThree = data.incorrect_answers[2]
+            .replace(/&quot;/g, '"')
+            .replace(/&eacute;/g, 'e')
+            .replace(/&#039;/g, "'");
+        let correct = data.correct_answer
+            .replace(/&quot;/g, '"')
+            .replace(/&eacute;/g, 'e')
+            .replace(/&#039;/g, "'");
 
-    let options = [incorrect, incorrectTwo, incorrectThree], n;
+        // Prepare options for the quiz
+        let options = [incorrect, incorrectTwo, incorrectThree, correct];
+        options.sort(() => Math.random() - 0.5); // Shuffle options
 
-    //push correct value
-    options.push(correct)
-    //gets random value of quiz
-    options.sort(() => Math.random() - Math.random()).slice(0, n);
-    //get correct ans 's index
-    let index = options.indexOf(correct) + 1;
-    //  console.log(index)
+        // Determine correct answer's index
+        let correctAns = options.indexOf(correct);
 
-    //position of wrong ans
-    let wrongOne = options.indexOf(incorrect) + 1;
-    let wrongTwo = options.indexOf(incorrectTwo) + 1;
-    let wrongThree = options.indexOf(incorrectThree) + 1;
+        // Send the poll
+        await client.sendPoll(msg.chat.id, question, options, {
+            open_period: 60,
+            is_anonymous: false,
+            type: 'quiz',
+            correct_option_id: correctAns
+        });
 
-    //index of correct answer
-    let correctAns = options.indexOf(correct);
-    //create poll
-    client.sendPoll(msg.chat.id, question, options, { open_period: 60, is_anonymous: false, type: 'quiz', correct_option_id: correctAns })
-
+    } catch (err) {
+        console.error('Error fetching trivia question:', err);
+        await client.sendMessage(msg.chat.id, 'Something went wrong while fetching trivia. Please try again later.');
+    }
 });
