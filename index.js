@@ -1,14 +1,16 @@
 //process.env["NTBA_FIX_319"] = 1;
-require('dotenv').config();
-const TelegramBot = require('node-telegram-bot-api');
+import fs from 'fs';
+import path from 'path';
+import TelegramBot from 'node-telegram-bot-api';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
 const token = process.env.token;
 const client = new TelegramBot(token, { polling: true });
 
-const fs = require('fs');
-const path = require('path');
-const server = require('./server.js');
+// const server = require('./server.js');
 
-const express = require("express");
+import express from ("express";
 const app = express();
 
 app.get("/", (req, res) => {
